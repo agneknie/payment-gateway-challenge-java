@@ -90,8 +90,6 @@ public class PaymentGatewayService {
     return successfulResponse;
   }
 
-
-
   private String generateRejectionReason(Set<ConstraintViolation<PostPaymentRequest>> violations) {
     boolean hasMissingFields = false;
 

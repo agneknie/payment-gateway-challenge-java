@@ -3,7 +3,6 @@ package com.checkout.payment.gateway.validation;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import java.time.LocalDate;
 import java.time.YearMonth;
 
 public class ExpiryDateValidator implements ConstraintValidator<ValidExpiryDate, PostPaymentRequest> {

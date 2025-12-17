@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +17,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(name = "Payment Gateway", description = "API for processing and retrieving payments")
 public class PaymentGatewayController {
+
+  private static final String HTTP_OK = "200";
+  private static final String HTTP_BAD_REQUEST = "400";
+  private static final String HTTP_UNPROCESSABLE_ENTITY = "422";
+  private static final String HTTP_NOT_FOUND = "404";
 
   private final PaymentGatewayService paymentGatewayService;
 
@@ -34,11 +37,11 @@ public class PaymentGatewayController {
   @PostMapping("/payment")
   @Operation(summary = "Process a payment", description = "Submit a payment request for processing through the payment gateway")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Payment processed successfully - Approved/Declined",
+      @ApiResponse(responseCode = HTTP_OK, description = "Payment processed successfully - Approved/Declined",
           content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessfulPaymentResponse.class))),
-      @ApiResponse(responseCode = "400", description = "Malformed request, missing required fields - Rejected",
+      @ApiResponse(responseCode = HTTP_BAD_REQUEST, description = "Malformed request, missing required fields - Rejected",
           content = @Content(mediaType = "application/json", schema = @Schema(implementation = RejectedPaymentResponse.class))),
-      @ApiResponse(responseCode = "422", description = "Payment rejected due to validation errors - Rejected",
+      @ApiResponse(responseCode = HTTP_UNPROCESSABLE_ENTITY, description = "Payment rejected due to validation errors - Rejected",
           content = @Content(mediaType = "application/json", schema = @Schema(implementation = RejectedPaymentResponse.class)))
   })
   public ResponseEntity<?> processPayment(@RequestBody PostPaymentRequest request) {
@@ -58,9 +61,9 @@ public class PaymentGatewayController {
   @GetMapping("/payment/{id}")
   @Operation(summary = "Retrieve payment details", description = "Get details of a previously processed payment by ID")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Payment found",
+      @ApiResponse(responseCode = HTTP_OK, description = "Payment found",
           content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessfulPaymentResponse.class))),
-      @ApiResponse(responseCode = "404", description = "Payment not found",
+      @ApiResponse(responseCode = HTTP_NOT_FOUND, description = "Payment not found",
           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.checkout.payment.gateway.model.ErrorResponse.class)))
   })
   public ResponseEntity<SuccessfulPaymentResponse> getPaymentById(@PathVariable UUID id) {

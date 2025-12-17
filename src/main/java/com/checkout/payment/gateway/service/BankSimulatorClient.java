@@ -26,7 +26,7 @@ public class BankSimulatorClient {
 
   public PaymentStatus callBank(BankSimulatorRequest request) {
     try {
-      LOG.debug("Calling bank simulator with card ending in: {}", request.getCard_number().substring(request.getCard_number().length() - 1));
+      LOG.debug("Calling bank simulator with card ending in: {}", request.getCardNumber().substring(request.getCardNumber().length() - 1));
 
       ResponseEntity<BankSimulatorResponse> response = restTemplate.postForEntity(
           BANK_SIMULATOR_URL,

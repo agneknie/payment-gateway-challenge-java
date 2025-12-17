@@ -1,14 +1,17 @@
 package com.checkout.payment.gateway.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class BankSimulatorResponse {
   private boolean authorized;
-  private String authorization_code;
+  @JsonProperty("authorization_code")
+  private String authorizationCode;
 
   public BankSimulatorResponse() {}
 
   public BankSimulatorResponse(boolean authorized, String authorizationCode) {
     this.authorized = authorized;
-    this.authorization_code = authorizationCode;
+    this.authorizationCode = authorizationCode;
   }
 
   public boolean isAuthorized() {
@@ -19,11 +22,11 @@ public class BankSimulatorResponse {
     this.authorized = authorized;
   }
 
-  public String getAuthorization_code() {
-    return authorization_code;
+  public String getAuthorizationCode() {
+    return authorizationCode;
   }
 
-  public void setAuthorization_code(String authorization_code) {
-    this.authorization_code = authorization_code;
+  public void setAuthorizationCode(String authorizationCode) {
+    this.authorizationCode = authorizationCode;
   }
 }

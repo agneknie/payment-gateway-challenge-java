@@ -62,6 +62,13 @@ class PaymentGatewayControllerTest {
   }
 
   @Test
+  void whenPaymentIdIsInvalidThenErrorResponseIsReturned() throws Exception {
+    mvc.perform(MockMvcRequestBuilders.get("/payment/invalid-uuid"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("invalid payment id"));
+  }
+
+  @Test
   void whenValidPaymentRequestIsSubmittedThenAuthorizedResponseIsReturned() throws Exception {
     String requestJson = """
         {

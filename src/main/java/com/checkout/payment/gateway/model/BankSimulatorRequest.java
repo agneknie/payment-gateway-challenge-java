@@ -1,10 +1,13 @@
 package com.checkout.payment.gateway.model;
 
 import com.checkout.payment.gateway.enums.Currency;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BankSimulatorRequest {
-  private String card_number;
-  private String expiry_date;
+  @JsonProperty("card_number")
+  private String cardNumber;
+  @JsonProperty("expiry_date")
+  private String expiryDate;
   private Currency currency;
   private int amount;
   private String cvv;
@@ -12,27 +15,27 @@ public class BankSimulatorRequest {
   public BankSimulatorRequest() {}
 
   public BankSimulatorRequest(String cardNumber, String expiryDate, Currency currency, int amount, String cvv) {
-    this.card_number = cardNumber;
-    this.expiry_date = expiryDate;
+    this.cardNumber = cardNumber;
+    this.expiryDate = expiryDate;
     this.currency = currency;
     this.amount = amount;
     this.cvv = cvv;
   }
 
-  public String getCard_number() {
-    return card_number;
+  public String getCardNumber() {
+    return cardNumber;
   }
 
-  public void setCard_number(String card_number) {
-    this.card_number = card_number;
+  public void setCardNumber(String cardNumber) {
+    this.cardNumber = cardNumber;
   }
 
-  public String getExpiry_date() {
-    return expiry_date;
+  public String getExpiryDate() {
+    return expiryDate;
   }
 
-  public void setExpiry_date(String expiry_date) {
-    this.expiry_date = expiry_date;
+  public void setExpiryDate(String expiryDate) {
+    this.expiryDate = expiryDate;
   }
 
   public Currency getCurrency() {
