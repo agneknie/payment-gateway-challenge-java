@@ -19,4 +19,8 @@ public class PaymentsRepository {
     return Optional.ofNullable(payments.get(id));
   }
 
+  public int size() {
+    return payments.size();
+  }
+
 }

@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.checkout.payment.gateway.enums.PaymentStatus;
 import com.checkout.payment.gateway.model.SuccessfulPaymentResponse;
 import com.checkout.payment.gateway.repository.PaymentsRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @SpringBootTest
@@ -24,6 +26,8 @@ class PaymentGatewayControllerTest {
   private MockMvc mvc;
   @Autowired
   PaymentsRepository paymentsRepository;
+  @Autowired
+  ObjectMapper objectMapper;
 
   @Test
   void whenPaymentWithIdExistThenCorrectPaymentIsReturned() throws Exception {
@@ -53,7 +57,7 @@ class PaymentGatewayControllerTest {
   void whenPaymentWithIdDoesNotExistThen404IsReturned() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get("/payment/" + UUID.randomUUID()))
         .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("Page not found"));
+        .andExpect(jsonPath("$.message").value("payment not found"));
   }
 
   @Test
@@ -569,5 +573,156 @@ class PaymentGatewayControllerTest {
         .andExpect(jsonPath("$.expiryYear").value(26))
         .andExpect(jsonPath("$.currency").value("USD"))
         .andExpect(jsonPath("$.amount").value(1000));
+  }
+
+  @Test
+  void whenApprovedPaymentIsPostedThenCanRetrieveItById() throws Exception {
+    String requestJson = """
+        {
+          "card_number": "4111111111111111",
+          "expiry_month": 1,
+          "expiry_year": 26,
+          "currency": "USD",
+          "amount": 1000,
+          "cvv": "123"
+        }
+        """;
+
+    MvcResult postResult = mvc.perform(MockMvcRequestBuilders.post("/payment")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("Authorized"))
+        .andReturn();
+
+    String responseContent = postResult.getResponse().getContentAsString();
+    SuccessfulPaymentResponse postedPayment = objectMapper.readValue(responseContent, SuccessfulPaymentResponse.class);
+
+    mvc.perform(MockMvcRequestBuilders.get("/payment/" + postedPayment.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("Authorized"))
+        .andExpect(jsonPath("$.cardNumberLastFour").value("1111"))
+        .andExpect(jsonPath("$.expiryMonth").value(1))
+        .andExpect(jsonPath("$.expiryYear").value(26))
+        .andExpect(jsonPath("$.currency").value("USD"))
+        .andExpect(jsonPath("$.amount").value(1000));
+  }
+
+  @Test
+  void whenDeclinedPaymentIsPostedThenCanRetrieveItById() throws Exception {
+    String requestJson = """
+        {
+          "card_number": "4111111111111112",
+          "expiry_month": 1,
+          "expiry_year": 26,
+          "currency": "USD",
+          "amount": 1000,
+          "cvv": "123"
+        }
+        """;
+
+    MvcResult postResult = mvc.perform(MockMvcRequestBuilders.post("/payment")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("Declined"))
+        .andReturn();
+
+    String responseContent = postResult.getResponse().getContentAsString();
+    SuccessfulPaymentResponse postedPayment = objectMapper.readValue(responseContent, SuccessfulPaymentResponse.class);
+
+    mvc.perform(MockMvcRequestBuilders.get("/payment/" + postedPayment.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("Declined"))
+        .andExpect(jsonPath("$.cardNumberLastFour").value("1112"))
+        .andExpect(jsonPath("$.expiryMonth").value(1))
+        .andExpect(jsonPath("$.expiryYear").value(26))
+        .andExpect(jsonPath("$.currency").value("USD"))
+        .andExpect(jsonPath("$.amount").value(1000));
+  }
+
+  @Test
+  void whenMultiplePaymentsArePostedThenCanRetrieveThemById() throws Exception {
+    String requestJson1 = """
+        {
+          "card_number": "4111111111111111",
+          "expiry_month": 1,
+          "expiry_year": 26,
+          "currency": "USD",
+          "amount": 1000,
+          "cvv": "123"
+        }
+        """;
+
+    MvcResult postResult1 = mvc.perform(MockMvcRequestBuilders.post("/payment")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson1))
+        .andExpect(status().isOk())
+        .andReturn();
+
+    String responseContent1 = postResult1.getResponse().getContentAsString();
+    SuccessfulPaymentResponse postedPayment1 = objectMapper.readValue(responseContent1, SuccessfulPaymentResponse.class);
+
+    String requestJson2 = """
+        {
+          "card_number": "4111111111111113",
+          "expiry_month": 2,
+          "expiry_year": 27,
+          "currency": "GBP",
+          "amount": 2000,
+          "cvv": "456"
+        }
+        """;
+
+    MvcResult postResult2 = mvc.perform(MockMvcRequestBuilders.post("/payment")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson2))
+        .andExpect(status().isOk())
+        .andReturn();
+
+    String responseContent2 = postResult2.getResponse().getContentAsString();
+    SuccessfulPaymentResponse postedPayment2 = objectMapper.readValue(responseContent2, SuccessfulPaymentResponse.class);
+
+    mvc.perform(MockMvcRequestBuilders.get("/payment/" + postedPayment1.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("Authorized"))
+        .andExpect(jsonPath("$.cardNumberLastFour").value("1111"))
+        .andExpect(jsonPath("$.expiryMonth").value(1))
+        .andExpect(jsonPath("$.expiryYear").value(26))
+        .andExpect(jsonPath("$.currency").value("USD"))
+        .andExpect(jsonPath("$.amount").value(1000));
+
+    mvc.perform(MockMvcRequestBuilders.get("/payment/" + postedPayment2.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("Authorized"))
+        .andExpect(jsonPath("$.cardNumberLastFour").value("1113"))
+        .andExpect(jsonPath("$.expiryMonth").value(2))
+        .andExpect(jsonPath("$.expiryYear").value(27))
+        .andExpect(jsonPath("$.currency").value("GBP"))
+        .andExpect(jsonPath("$.amount").value(2000));
+  }
+
+  @Test
+  void whenRejectedPaymentIsPostedThenDatabaseRemainsEmpty() throws Exception {
+    String requestJson = """
+        {
+          "card_number": "4111111111111111",
+          "expiry_month": 1,
+          "expiry_year": 26,
+          "currency": "CAD",
+          "amount": 1000,
+          "cvv": "123"
+        }
+        """;
+
+    mvc.perform(MockMvcRequestBuilders.post("/payment")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson))
+        .andExpect(status().isUnprocessableEntity())
+        .andExpect(jsonPath("$.status").value("Rejected"))
+        .andExpect(jsonPath("$.rejectionReason").value("Currency is not supported"));
+
+    // Check that no payment was stored
+    assert paymentsRepository.size() == 0;
   }
 }

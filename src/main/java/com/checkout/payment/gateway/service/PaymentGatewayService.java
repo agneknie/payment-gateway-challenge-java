@@ -9,7 +9,6 @@ import com.checkout.payment.gateway.model.SuccessfulPaymentResponse;
 import com.checkout.payment.gateway.repository.PaymentsRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import org.slf4j.Logger;
