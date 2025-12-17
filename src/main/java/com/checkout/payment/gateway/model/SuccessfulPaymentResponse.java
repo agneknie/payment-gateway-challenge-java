@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.model;
 
+import com.checkout.payment.gateway.enums.Currency;
 import com.checkout.payment.gateway.enums.PaymentStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
@@ -11,13 +12,13 @@ public class SuccessfulPaymentResponse {
   private String cardNumberLastFour;
   private Integer expiryMonth;
   private Integer expiryYear;
-  private String currency;
+  private Currency currency;
   private Integer amount;
 
   public SuccessfulPaymentResponse() {}
 
   public SuccessfulPaymentResponse(UUID id, PaymentStatus status, String cardNumberLastFour,
-                                   Integer expiryMonth, Integer expiryYear, String currency, Integer amount) {
+                                   Integer expiryMonth, Integer expiryYear, Currency currency, Integer amount) {
     this.id = id;
     this.status = status;
     this.cardNumberLastFour = cardNumberLastFour;
@@ -67,11 +68,11 @@ public class SuccessfulPaymentResponse {
     this.expiryYear = expiryYear;
   }
 
-  public String getCurrency() {
+  public Currency getCurrency() {
     return currency;
   }
 
-  public void setCurrency(String currency) {
+  public void setCurrency(Currency currency) {
     this.currency = currency;
   }
 

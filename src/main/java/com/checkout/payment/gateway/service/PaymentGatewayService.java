@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.service;
 
+import com.checkout.payment.gateway.enums.Currency;
 import com.checkout.payment.gateway.enums.PaymentStatus;
 import com.checkout.payment.gateway.exception.EventProcessingException;
 import com.checkout.payment.gateway.model.BankSimulatorRequest;
@@ -58,7 +59,7 @@ public class PaymentGatewayService {
     BankSimulatorRequest bankRequest = new BankSimulatorRequest(
         paymentRequest.getCardNumber(),
         paymentRequest.getExpiryDate(),
-        paymentRequest.getCurrency(),
+        Currency.valueOf(paymentRequest.getCurrency()),
         Integer.parseInt(paymentRequest.getAmount()),
         paymentRequest.getCvv()
     );
@@ -76,7 +77,7 @@ public class PaymentGatewayService {
         lastFour,
         paymentRequest.getExpiryMonth(),
         paymentRequest.getExpiryYear(),
-        paymentRequest.getCurrency(),
+        Currency.valueOf(paymentRequest.getCurrency()),
         Integer.parseInt(paymentRequest.getAmount())
     );
 
@@ -136,7 +137,7 @@ public class PaymentGatewayService {
                  message.contains("must be 14-19 digits") || message.contains("must be 3-4 digits") ||
                  message.contains("must be a positive integer")) {
         reasons.add(property + " is malformed/incorrect");
-      } else if (message.contains("must be USD, GBP, or EUR")) {
+      } else if (message.contains("Currency is not supported")) {
         reasons.add("Currency is not supported");
       }
     }

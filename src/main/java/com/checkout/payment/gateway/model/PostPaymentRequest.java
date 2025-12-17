@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.model;
 
+import com.checkout.payment.gateway.validation.ValidCurrency;
 import com.checkout.payment.gateway.validation.ValidExpiryDate;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,7 +32,7 @@ public class PostPaymentRequest implements Serializable {
   private Integer expiryYear;
 
   @NotBlank(message = "Currency is required")
-  @Pattern(regexp = "^(USD|GBP|EUR)$", message = "Currency must be USD, GBP, or EUR")
+  @ValidCurrency
   private String currency;
 
   @NotBlank(message = "Amount is required")

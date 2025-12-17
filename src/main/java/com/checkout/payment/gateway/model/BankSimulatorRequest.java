@@ -1,15 +1,17 @@
 package com.checkout.payment.gateway.model;
 
+import com.checkout.payment.gateway.enums.Currency;
+
 public class BankSimulatorRequest {
   private String card_number;
   private String expiry_date;
-  private String currency;
+  private Currency currency;
   private int amount;
   private String cvv;
 
   public BankSimulatorRequest() {}
 
-  public BankSimulatorRequest(String cardNumber, String expiryDate, String currency, int amount, String cvv) {
+  public BankSimulatorRequest(String cardNumber, String expiryDate, Currency currency, int amount, String cvv) {
     this.card_number = cardNumber;
     this.expiry_date = expiryDate;
     this.currency = currency;
@@ -33,11 +35,11 @@ public class BankSimulatorRequest {
     this.expiry_date = expiry_date;
   }
 
-  public String getCurrency() {
+  public Currency getCurrency() {
     return currency;
   }
 
-  public void setCurrency(String currency) {
+  public void setCurrency(Currency currency) {
     this.currency = currency;
   }
 

@@ -4,6 +4,7 @@ package com.checkout.payment.gateway.controller;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.checkout.payment.gateway.enums.Currency;
 import com.checkout.payment.gateway.enums.PaymentStatus;
 import com.checkout.payment.gateway.model.SuccessfulPaymentResponse;
 import com.checkout.payment.gateway.repository.PaymentsRepository;
@@ -37,7 +38,7 @@ class PaymentGatewayControllerTest {
         "4321",
         12,
         2024,
-        "USD",
+        Currency.USD,
         10
     );
 
@@ -49,7 +50,7 @@ class PaymentGatewayControllerTest {
         .andExpect(jsonPath("$.cardNumberLastFour").value(payment.getCardNumberLastFour()))
         .andExpect(jsonPath("$.expiryMonth").value(payment.getExpiryMonth()))
         .andExpect(jsonPath("$.expiryYear").value(payment.getExpiryYear()))
-        .andExpect(jsonPath("$.currency").value(payment.getCurrency()))
+        .andExpect(jsonPath("$.currency").value(payment.getCurrency().getName()))
         .andExpect(jsonPath("$.amount").value(payment.getAmount()));
   }
 
