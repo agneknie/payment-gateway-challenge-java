@@ -1,5 +1,8 @@
 package com.checkout.payment.gateway.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Error response")
 public class ErrorResponse {
   private final String message;
 

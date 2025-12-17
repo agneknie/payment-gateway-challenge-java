@@ -1,9 +1,11 @@
 package com.checkout.payment.gateway.model;
 
 import com.checkout.payment.gateway.enums.PaymentStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 
-public class GetPaymentResponse {
+@Schema(description = "Successful payment processing response")
+public class SuccessfulPaymentResponse {
   private UUID id;
   private PaymentStatus status;
   private String cardNumberLastFour;
@@ -11,7 +13,19 @@ public class GetPaymentResponse {
   private Integer expiryYear;
   private String currency;
   private Integer amount;
-  private String rejectionReason;
+
+  public SuccessfulPaymentResponse() {}
+
+  public SuccessfulPaymentResponse(UUID id, PaymentStatus status, String cardNumberLastFour,
+                                   Integer expiryMonth, Integer expiryYear, String currency, Integer amount) {
+    this.id = id;
+    this.status = status;
+    this.cardNumberLastFour = cardNumberLastFour;
+    this.expiryMonth = expiryMonth;
+    this.expiryYear = expiryYear;
+    this.currency = currency;
+    this.amount = amount;
+  }
 
   public UUID getId() {
     return id;
@@ -69,20 +83,12 @@ public class GetPaymentResponse {
     this.amount = amount;
   }
 
-  public String getRejectionReason() {
-    return rejectionReason;
-  }
-
-  public void setRejectionReason(String rejectionReason) {
-    this.rejectionReason = rejectionReason;
-  }
-
   @Override
   public String toString() {
-    return "GetPaymentResponse{" +
+    return "SuccessfulPaymentResponse{" +
         "id=" + id +
         ", status=" + status +
-        ", cardNumberLastFour=" + cardNumberLastFour +
+        ", cardNumberLastFour='" + cardNumberLastFour + '\'' +
         ", expiryMonth=" + expiryMonth +
         ", expiryYear=" + expiryYear +
         ", currency='" + currency + '\'' +
