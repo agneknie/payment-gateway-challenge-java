@@ -40,7 +40,7 @@ public class BankSimulatorClient {
           return body.isAuthorized() ? PaymentStatus.AUTHORIZED : PaymentStatus.DECLINED;
         }
       } else if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
-        LOG.warn("Bank simulator returned 400 Bad Request - invalid request format");
+        LOG.info("Bank simulator returned 400 Bad Request - invalid request format");
         return PaymentStatus.DECLINED;
       } else if (response.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE) {
         LOG.info("Bank simulator returned 503 Service Unavailable");

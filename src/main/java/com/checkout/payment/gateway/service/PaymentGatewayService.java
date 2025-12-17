@@ -33,8 +33,10 @@ public class PaymentGatewayService {
 
   public SuccessfulPaymentResponse getPaymentById(UUID id) {
     LOG.debug("Requesting access to payment with ID {}", id);
-    return paymentsRepository.get(id)
-        .orElseThrow(() -> new EventProcessingException("Invalid ID"));
+    SuccessfulPaymentResponse payment = paymentsRepository.get(id)
+        .orElseThrow(() -> new EventProcessingException("Invalid payment ID"));
+    LOG.info("Payment retrieved for ID {}", id);
+    return payment;
   }
 
   public Object processPayment(PostPaymentRequest paymentRequest) {
@@ -43,14 +45,14 @@ public class PaymentGatewayService {
     // Validate the request
     Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(paymentRequest);
     if (!violations.isEmpty()) {
-      LOG.warn("Validation failed for payment request: {}", violations);
+      LOG.info("Validation failed for payment request: {}", violations);
       // Return REJECTED response (not stored)
       String rejectionReason = generateRejectionReason(violations);
       return new RejectedPaymentResponse(PaymentStatus.REJECTED, rejectionReason);
     }
 
     // Validation passed, proceed with bank call
-    LOG.info("Validation passed, calling bank simulator for card ending in: {}",
+    LOG.debug("Validation passed, calling bank simulator for card ending in: {}",
              paymentRequest.getCardNumber().substring(paymentRequest.getCardNumber().length() - 4));
 
     UUID paymentId = UUID.randomUUID();

@@ -16,14 +16,14 @@ public class CommonExceptionHandler {
 
   @ExceptionHandler(EventProcessingException.class)
   public ResponseEntity<ErrorResponse> handleException(EventProcessingException ex) {
-    LOG.error("Exception happened", ex);
+    LOG.info("Attempted to retrieve non-existent payment");
     return new ResponseEntity<>(new ErrorResponse("payment not found"),
         HttpStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
-    LOG.warn("Validation failed: {}", ex.getMessage());
+    LOG.info("Validation failed: {}", ex.getMessage());
     return new ResponseEntity<>(new ErrorResponse("Validation failed"),
         HttpStatus.BAD_REQUEST);
   }

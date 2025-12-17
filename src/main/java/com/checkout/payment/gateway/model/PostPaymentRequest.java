@@ -28,6 +28,7 @@ public class PostPaymentRequest implements Serializable {
 
   @JsonProperty("expiry_year")
   @NotNull(message = "Expiry year is required")
+  @Min(value = 1, message = "Expiry year must be 2-digit (00-99)")
   @Max(value = 99, message = "Expiry year must be 2-digit (00-99)")
   private Integer expiryYear;
 

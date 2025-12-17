@@ -34,19 +34,18 @@ public class PaymentGatewayController {
   @PostMapping("/payment")
   @Operation(summary = "Process a payment", description = "Submit a payment request for processing through the payment gateway")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Payment processed successfully",
+      @ApiResponse(responseCode = "200", description = "Payment processed successfully - Approved/Declined",
           content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessfulPaymentResponse.class))),
-      @ApiResponse(responseCode = "400", description = "Malformed request - missing required fields",
+      @ApiResponse(responseCode = "400", description = "Malformed request, missing required fields - Rejected",
           content = @Content(mediaType = "application/json", schema = @Schema(implementation = RejectedPaymentResponse.class))),
-      @ApiResponse(responseCode = "422", description = "Payment rejected due to validation errors",
+      @ApiResponse(responseCode = "422", description = "Payment rejected due to validation errors - Rejected",
           content = @Content(mediaType = "application/json", schema = @Schema(implementation = RejectedPaymentResponse.class)))
   })
   public ResponseEntity<?> processPayment(@RequestBody PostPaymentRequest request) {
     Object response = paymentGatewayService.processPayment(request);
     if (response instanceof SuccessfulPaymentResponse) {
       return new ResponseEntity<>(response, HttpStatus.OK);
-    } else if (response instanceof RejectedPaymentResponse) {
-      RejectedPaymentResponse rejected = (RejectedPaymentResponse) response;
+    } else if (response instanceof RejectedPaymentResponse rejected) {
       HttpStatus status = "malformed request".equals(rejected.getRejectionReason())
           ? HttpStatus.BAD_REQUEST
           : HttpStatus.UNPROCESSABLE_ENTITY;
