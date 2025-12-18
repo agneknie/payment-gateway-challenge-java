@@ -6,6 +6,7 @@ import com.checkout.payment.gateway.exception.EventProcessingException;
 import com.checkout.payment.gateway.util.RejectionMessages;
 import com.checkout.payment.gateway.model.BankSimulatorRequest;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
+import com.checkout.payment.gateway.model.PostPaymentResponse;
 import com.checkout.payment.gateway.model.RejectedPaymentResponse;
 import com.checkout.payment.gateway.model.SuccessfulPaymentResponse;
 import com.checkout.payment.gateway.repository.PaymentsRepository;
@@ -34,62 +35,61 @@ public class PaymentGatewayService {
   }
 
   public SuccessfulPaymentResponse getPaymentById(UUID id) {
-    LOG.debug("Requesting access to payment with ID {}", id);
     SuccessfulPaymentResponse payment = paymentsRepository.get(id)
         .orElseThrow(() -> new EventProcessingException("invalid payment ID"));
+
     LOG.info("Payment retrieved for ID {}", id);
     return payment;
   }
 
-  public Object processPayment(PostPaymentRequest paymentRequest) {
+  public PostPaymentResponse processPayment(PostPaymentRequest paymentRequest) {
     LOG.info("Processing payment request");
 
     // Validate the request
     Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(paymentRequest);
     if (!violations.isEmpty()) {
-      LOG.info("Validation failed for payment request: {}", violations);
-      // Return REJECTED response (not stored)
-      String rejectionReason = generateRejectionReason(violations);
-      return new RejectedPaymentResponse(PaymentStatus.REJECTED, rejectionReason);
+      LOG.info("Payment validation failed for payment request: {}", violations);
+      return new RejectedPaymentResponse(PaymentStatus.REJECTED, generateRejectionReason(violations));
     }
 
     // Validation passed, proceed with bank call
-    LOG.debug("Validation passed, calling bank simulator for card ending in: {}",
-             paymentRequest.getCardNumber().substring(paymentRequest.getCardNumber().length() - 4));
+    LOG.info("Payment validation passed");
+    PaymentStatus bankStatus = sendBankRequest(paymentRequest);
 
-    UUID paymentId = UUID.randomUUID();
-
-    // Call bank simulator
-    BankSimulatorRequest bankRequest = new BankSimulatorRequest(
-        paymentRequest.getCardNumber(),
-        paymentRequest.getExpiryDate(),
-        Currency.valueOf(paymentRequest.getCurrency()),
-        Integer.parseInt(paymentRequest.getAmount()),
-        paymentRequest.getCvv()
-    );
-
-    PaymentStatus bankStatus = bankSimulatorClient.callBank(bankRequest);
-
-    // Set last 4 digits of card
-    String cardNumber = paymentRequest.getCardNumber();
-    String lastFour = cardNumber.substring(cardNumber.length() - 4);
-
-    // Create successful response
-    SuccessfulPaymentResponse successfulResponse = new SuccessfulPaymentResponse(
-        paymentId,
-        bankStatus,
-        lastFour,
-        paymentRequest.getExpiryMonth(),
-        paymentRequest.getExpiryYear(),
-        Currency.valueOf(paymentRequest.getCurrency()),
-        Integer.parseInt(paymentRequest.getAmount())
-    );
+    // Create payment response
+    SuccessfulPaymentResponse response = createSuccessfulResponse(bankStatus, paymentRequest);
 
     // Store the payment
-    paymentsRepository.add(successfulResponse);
+    paymentsRepository.add(response);
 
     LOG.info("Payment processed with status: {}", bankStatus);
-    return successfulResponse;
+    return response;
+  }
+
+  private PaymentStatus sendBankRequest(PostPaymentRequest request) {
+    final BankSimulatorRequest bankRequest = new BankSimulatorRequest(
+        request.getCardNumber(),
+        request.getExpiryDate(),
+        Currency.valueOf(request.getCurrency()),
+        Integer.parseInt(request.getAmount()),
+        request.getCvv()
+    );
+    return bankSimulatorClient.callBank(bankRequest);
+  }
+
+  private SuccessfulPaymentResponse createSuccessfulResponse(PaymentStatus status, PostPaymentRequest request) {
+    UUID paymentId = UUID.randomUUID();
+    String lastFour = request.getCardNumber().substring(request.getCardNumber().length() - 4);
+
+    return new SuccessfulPaymentResponse(
+        paymentId,
+        status,
+        lastFour,
+        request.getExpiryMonth(),
+        request.getExpiryYear(),
+        Currency.valueOf(request.getCurrency()),
+        Integer.parseInt(request.getAmount())
+    );
   }
 
   String generateRejectionReason(Set<ConstraintViolation<PostPaymentRequest>> violations) {

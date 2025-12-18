@@ -1,7 +1,9 @@
 package com.checkout.payment.gateway.controller;
 
+import com.checkout.payment.gateway.enums.PaymentStatus;
 import com.checkout.payment.gateway.util.RejectionMessages;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
+import com.checkout.payment.gateway.model.PostPaymentResponse;
 import com.checkout.payment.gateway.model.RejectedPaymentResponse;
 import com.checkout.payment.gateway.model.SuccessfulPaymentResponse;
 import com.checkout.payment.gateway.service.PaymentGatewayService;
@@ -45,17 +47,16 @@ public class PaymentGatewayController {
       @ApiResponse(responseCode = HTTP_UNPROCESSABLE_ENTITY, description = "Payment rejected due to validation errors - Rejected",
           content = @Content(mediaType = "application/json", schema = @Schema(implementation = RejectedPaymentResponse.class)))
   })
-  public ResponseEntity<?> processPayment(@RequestBody PostPaymentRequest request) {
-    Object response = paymentGatewayService.processPayment(request);
-    if (response instanceof SuccessfulPaymentResponse) {
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } else if (response instanceof RejectedPaymentResponse rejected) {
+  public ResponseEntity<PostPaymentResponse> processPayment(@RequestBody PostPaymentRequest request) {
+    PostPaymentResponse response = paymentGatewayService.processPayment(request);
+    if (response.getStatus() == PaymentStatus.REJECTED) {
+      RejectedPaymentResponse rejected = (RejectedPaymentResponse) response;
       HttpStatus status = RejectionMessages.MALFORMED_REQUEST.equals(rejected.getRejectionReason())
           ? HttpStatus.BAD_REQUEST
           : HttpStatus.UNPROCESSABLE_ENTITY;
       return new ResponseEntity<>(response, status);
     } else {
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(response, HttpStatus.OK);
     }
   }
 
