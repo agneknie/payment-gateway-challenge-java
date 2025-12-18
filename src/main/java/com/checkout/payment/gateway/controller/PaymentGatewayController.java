@@ -30,6 +30,7 @@ public class PaymentGatewayController {
   private static final String HTTP_BAD_REQUEST = "400";
   private static final String HTTP_UNPROCESSABLE_ENTITY = "422";
   private static final String HTTP_NOT_FOUND = "404";
+  private static final String JSON = "application/json";
 
   private final PaymentGatewayService paymentGatewayService;
 
@@ -41,11 +42,11 @@ public class PaymentGatewayController {
   @Operation(summary = "Process a payment", description = "Submit a payment request for processing through the payment gateway")
   @ApiResponses(value = {
       @ApiResponse(responseCode = HTTP_OK, description = "Payment processed successfully - Approved/Declined",
-          content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessfulPaymentResponse.class))),
+          content = @Content(mediaType = JSON, schema = @Schema(implementation = SuccessfulPaymentResponse.class))),
       @ApiResponse(responseCode = HTTP_BAD_REQUEST, description = "Malformed request, missing required fields - Rejected",
-          content = @Content(mediaType = "application/json", schema = @Schema(implementation = RejectedPaymentResponse.class))),
+          content = @Content(mediaType = JSON, schema = @Schema(implementation = RejectedPaymentResponse.class))),
       @ApiResponse(responseCode = HTTP_UNPROCESSABLE_ENTITY, description = "Payment rejected due to validation errors - Rejected",
-          content = @Content(mediaType = "application/json", schema = @Schema(implementation = RejectedPaymentResponse.class)))
+          content = @Content(mediaType = JSON, schema = @Schema(implementation = RejectedPaymentResponse.class)))
   })
   public ResponseEntity<PostPaymentResponse> processPayment(@RequestBody PostPaymentRequest request) {
     PostPaymentResponse response = paymentGatewayService.processPayment(request);
@@ -64,9 +65,9 @@ public class PaymentGatewayController {
   @Operation(summary = "Retrieve payment details", description = "Get details of a previously processed payment by ID")
   @ApiResponses(value = {
       @ApiResponse(responseCode = HTTP_OK, description = "Payment found",
-          content = @Content(mediaType = "application/json", schema = @Schema(implementation = SuccessfulPaymentResponse.class))),
+          content = @Content(mediaType = JSON, schema = @Schema(implementation = SuccessfulPaymentResponse.class))),
       @ApiResponse(responseCode = HTTP_NOT_FOUND, description = "Payment not found",
-          content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.checkout.payment.gateway.model.ErrorResponse.class)))
+          content = @Content(mediaType = JSON, schema = @Schema(implementation = com.checkout.payment.gateway.model.ErrorResponse.class)))
   })
   public ResponseEntity<SuccessfulPaymentResponse> getPaymentById(@PathVariable UUID id) {
     SuccessfulPaymentResponse payment = paymentGatewayService.getPaymentById(id);
