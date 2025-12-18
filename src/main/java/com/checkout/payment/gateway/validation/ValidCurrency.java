@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.validation;
 
+import com.checkout.payment.gateway.util.RejectionMessages;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import java.lang.annotation.ElementType;
@@ -12,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidCurrency {
 
-  String message() default "Currency is not supported";
+  String message() default RejectionMessages.CURRENCY_NOT_SUPPORTED;
 
   Class<?>[] groups() default {};
 

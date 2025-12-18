@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.model;
 
+import com.checkout.payment.gateway.util.RejectionMessages;
 import com.checkout.payment.gateway.validation.ValidCurrency;
 import com.checkout.payment.gateway.validation.ValidExpiryDate;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,32 +17,32 @@ import java.io.Serializable;
 public class PostPaymentRequest implements Serializable {
 
   @JsonProperty("card_number")
-  @NotBlank(message = "Card number is required")
-  @Pattern(regexp = "^\\d{14,19}$", message = "Card number must be 14-19 digits")
+  @NotBlank(message = RejectionMessages.MALFORMED_REQUEST)
+  @Pattern(regexp = "^\\d{14,19}$", message = RejectionMessages.CARD_NUMBER_MALFORMED)
   private String cardNumber;
 
   @JsonProperty("expiry_month")
-  @NotNull(message = "Expiry month is required")
-  @Min(value = 1, message = "Expiry month must be between 1-12")
-  @Max(value = 12, message = "Expiry month must be between 1-12")
+  @NotNull(message = RejectionMessages.MALFORMED_REQUEST)
+  @Min(value = 1, message = RejectionMessages.EXPIRY_MONTH_MALFORMED)
+  @Max(value = 12, message = RejectionMessages.EXPIRY_MONTH_MALFORMED)
   private Integer expiryMonth;
 
   @JsonProperty("expiry_year")
-  @NotNull(message = "Expiry year is required")
-  @Min(value = 1, message = "Expiry year must be 2-digit (00-99)")
-  @Max(value = 99, message = "Expiry year must be 2-digit (00-99)")
+  @NotNull(message = RejectionMessages.MALFORMED_REQUEST)
+  @Min(value = 1, message = RejectionMessages.EXPIRY_YEAR_MALFORMED)
+  @Max(value = 99, message = RejectionMessages.EXPIRY_YEAR_MALFORMED)
   private Integer expiryYear;
 
-  @NotBlank(message = "Currency is required")
+  @NotBlank(message = RejectionMessages.MALFORMED_REQUEST)
   @ValidCurrency
   private String currency;
 
-  @NotBlank(message = "Amount is required")
-  @Pattern(regexp = "^\\d+$", message = "Amount must be a positive integer")
+  @NotBlank(message = RejectionMessages.MALFORMED_REQUEST)
+  @Pattern(regexp = "^\\d+$", message = RejectionMessages.AMOUNT_MALFORMED)
   private String amount;
 
-  @NotBlank(message = "CVV is required")
-  @Pattern(regexp = "^\\d{3,4}$", message = "CVV must be 3-4 digits")
+  @NotBlank(message = RejectionMessages.MALFORMED_REQUEST)
+  @Pattern(regexp = "^\\d{3,4}$", message = RejectionMessages.CVV_MALFORMED)
   private String cvv;
 
   public String getCardNumber() {

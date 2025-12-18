@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.controller;
 
+import com.checkout.payment.gateway.util.RejectionMessages;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
 import com.checkout.payment.gateway.model.RejectedPaymentResponse;
 import com.checkout.payment.gateway.model.SuccessfulPaymentResponse;
@@ -49,7 +50,7 @@ public class PaymentGatewayController {
     if (response instanceof SuccessfulPaymentResponse) {
       return new ResponseEntity<>(response, HttpStatus.OK);
     } else if (response instanceof RejectedPaymentResponse rejected) {
-      HttpStatus status = "malformed request".equals(rejected.getRejectionReason())
+      HttpStatus status = RejectionMessages.MALFORMED_REQUEST.equals(rejected.getRejectionReason())
           ? HttpStatus.BAD_REQUEST
           : HttpStatus.UNPROCESSABLE_ENTITY;
       return new ResponseEntity<>(response, status);
